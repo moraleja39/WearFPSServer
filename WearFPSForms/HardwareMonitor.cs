@@ -97,6 +97,8 @@ namespace WearFPSForms
         static cCPU cpu = new cCPU();
         static cGPU gpu = new cGPU();
 
+        static Computer computer;
+
 
         static public void initThreaded()
         {
@@ -120,7 +122,7 @@ namespace WearFPSForms
             Log.Info("Iniciando monitor de hardware...");
 
             //int i = 0;
-            Computer computer = new Computer()
+            computer = new Computer()
             {
                 CPUEnabled = true,
                 GPUEnabled = true,
@@ -184,6 +186,8 @@ namespace WearFPSForms
             gpu.hardware.SensorAdded += new SensorEventHandler(sensorAdded);
             gpu.hardware.SensorRemoved += new SensorEventHandler(sensorRemoved);
             if (!gpu.isOnline()) startGPUMonitorThread();
+            computer.HardwareAdded += new HardwareEventHandler(hardwareAdded);
+            computer.HardwareRemoved += new HardwareEventHandler(hardwareRemoved);
 
             /*Log.Debug(cpuHardware.ToString());
             Log.Debug(gpuHardware.ToString());
@@ -207,6 +211,21 @@ namespace WearFPSForms
         {
             Log.Info("GPU sensor removed: " + sensor.Name);
             gpu.findSensors();
+        }
+
+        private static void hardwareAdded(IHardware hardware)
+        {
+            Log.Info("Hardware added: " + hardware.Name + " (" + hardware.HardwareType + ")");
+            if (hardware.HardwareType == HardwareType.GpuAti || hardware.HardwareType == HardwareType.GpuNvidia)
+            {
+                gpu.hardware = hardware;
+                gpu.update();
+            }
+        }
+
+        private static void hardwareRemoved(IHardware hardware)
+        {
+            Log.Info("Hardware removed: " + hardware.Name + " (" + hardware.HardwareType + ")");
         }
 
         private static Thread gpuMonThread = null;
@@ -274,11 +293,7 @@ namespace WearFPSForms
         {
             get
             {
-                if (gpu.isOnline())
-                {
-                    return (gpu.temp.Value.HasValue) ? gpu.temp.Value.Value : -1f;
-                }
-                else return -1f;
+                return (gpu.temp != null && gpu.temp.Value.HasValue) ? gpu.temp.Value.Value : -1f;
             }
         }
 
@@ -286,11 +301,8 @@ namespace WearFPSForms
         {
             get
             {
-                if (gpu.isOnline())
-                {
-                    return (gpu.load.Value.HasValue) ? gpu.load.Value.Value : -1f;
-                }
-                else return -1f;
+                return (gpu.load != null && gpu.load.Value.HasValue) ? gpu.load.Value.Value : -1f;
+
             }
         }
 
@@ -306,11 +318,7 @@ namespace WearFPSForms
         {
             get
             {
-                if (gpu.isOnline())
-                {
-                    return (gpu.clock.Value.HasValue) ? gpu.clock.Value.Value : -1f;
-                }
-                else return -1f;
+                return (gpu.clock != null && gpu.clock.Value.HasValue) ? gpu.clock.Value.Value : -1f;
             }
         }
     }

@@ -32,6 +32,22 @@ namespace WearFPSForms
 
             Log.Initialize(".\\WearFPS.log", LogLevel.All, false);
 
+            if (Properties.Settings.Default.firstRun)
+            {
+                FirewallHelper fh = FirewallHelper.Instance;
+                if (fh.IsFirewallInstalled)
+                {
+                    Log.Debug("Windows Firewall is installed. Adding exception...");
+                    var path = Application.ExecutablePath;
+                    Log.Debug("Executable path is " + path);
+                    fh.GrantAuthorization(path, "WearFPS");
+                    fh = null;
+                    Properties.Settings.Default.firstRun = false;
+                    Properties.Settings.Default.Save();
+                }
+                else Log.Debug("Windows Firewall is not installed.");
+            }
+
             menu = new ContextMenuStrip();
             menu.Items.Add("Salir").Click += salir_Click;
 
