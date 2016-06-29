@@ -69,5 +69,15 @@ namespace WearFPSForms.Properties {
                 return ((System.Drawing.Icon)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Busca un recurso adaptado de tipo System.Byte[].
+        /// </summary>
+        internal static byte[] updater {
+            get {
+                object obj = ResourceManager.GetObject("updater", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

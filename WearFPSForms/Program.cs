@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Diagnostics;
+using System.Net;
+using System.IO;
 
 namespace WearFPSForms
 {
@@ -30,7 +32,31 @@ namespace WearFPSForms
 
             //icon = new Icon();
 
-            Log.Initialize(".\\WearFPS.log", LogLevel.All, false);
+            Log.Initialize(".\\WearFPS.log", LogLevel.All, true);
+
+            if (File.Exists(@"update-info"))
+            {
+                Log.Debug("Eliminando archivos de actualización...");
+                File.Delete(@"update-info");
+                File.Delete(@"updater.exe");
+            }
+
+            using (WebClient client = new WebClient())
+            {
+                string s = client.DownloadString("http://pc.oviedo.me/wfs/v");
+                int ver = Int32.Parse(s);
+                Log.Info("Última versión en línea: " + ver + ". Versión local: " + Properties.Settings.Default.version);
+                if (ver > Properties.Settings.Default.version)
+                {
+                    File.WriteAllBytes(@"updater.exe", Properties.Resources.updater);
+                    using (StreamWriter sw = new StreamWriter("update-info"))
+                    {
+                        sw.Write("zip;http://pc.oviedo.me/wfs/" + ver + ".zip;release.zip");
+                    }
+                    Process.Start("updater.exe");
+                    return;
+                }
+            }
 
             if (Properties.Settings.Default.firstRun)
             {
@@ -52,7 +78,7 @@ namespace WearFPSForms
             menu.Items.Add("Salir").Click += salir_Click;
 
             taskIcon = new NotifyIcon();
-            taskIcon.Text = "WearFPS Server";
+            taskIcon.Text = "WearFPS Server 0.1." + Properties.Settings.Default.version;
             taskIcon.Icon = Properties.Resources.NotifyIcon;
             taskIcon.ContextMenuStrip = menu;
             taskIcon.Visible = true;
@@ -100,15 +126,17 @@ namespace WearFPSForms
         static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
             Log.Error("Unhandled thread exception: " + e.ToString());
-            MessageBox.Show(e.Exception.Message, "Unhandled Thread Exception");
-            throw e.Exception;
+            MessageBox.Show(sender.ToString() + "\n" + e.Exception.Message, "Unhandled Thread Exception");
+            //throw e.Exception;
+            salir_Click(null, null);
         }
 
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             Log.Error("Unhandled UI exception: " + (e.ExceptionObject as Exception).ToString());
-            MessageBox.Show((e.ExceptionObject as Exception).Message, "Unhandled UI Exception");
-            throw e.ExceptionObject as Exception;
+            MessageBox.Show(sender.ToString() + "\n" + (e.ExceptionObject as Exception).Message, "Unhandled UI Exception");
+            //throw e.ExceptionObject as Exception;
+            salir_Click(null, null);
         }
     }
 }

@@ -34,5 +34,14 @@ namespace WearFPSForms.Properties {
                 this["firstRun"] = value;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int version {
+            get {
+                return ((int)(this["version"]));
+            }
+        }
     }
 }

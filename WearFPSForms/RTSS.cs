@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using System.Timers;
 using System.Threading.Tasks;
 
 namespace WearFPSForms
@@ -71,6 +72,9 @@ namespace WearFPSForms
                 return;
             }
 
+
+            setForegroundAppThread();
+
             /////
             wed = new NativeMethods.WinEventDelegate(WinEventProc);
             IntPtr m_hhook = NativeMethods.SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, wed, 0, 0, WINEVENT_OUTOFCONTEXT);
@@ -93,22 +97,56 @@ namespace WearFPSForms
             return fps;
         }
 
+        static System.Timers.Timer fgTimer;
+        static ManualResetEvent threadSyncer = new ManualResetEvent(false);
+        static Thread fgThread;
+        private static void setForegroundAppThread()
+        {
+            fgTimer = new System.Timers.Timer();
+            fgTimer.AutoReset = false;
+            fgTimer.Interval = 250;
+            fgTimer.Elapsed += onTimedEvent;
+            fgTimer.Stop();
+
+            fgThread = new Thread(new ThreadStart(fgThreadLoop));
+            fgThread.Start();
+        }
+
+        private static void onTimedEvent(object source, ElapsedEventArgs e)
+        {
+            threadSyncer.Set();
+        }
+
+        static bool runFgThread = true;
+        private static void fgThreadLoop()
+        {
+            while (runFgThread)
+            {
+                threadSyncer.WaitOne();
+                for (int i = 0; i < 256; i++)
+                {
+                    tmp = NativeMethods.getNthProc(i);
+                    //Log.Debug(i + "th: " + tmp);
+                    if (tmp == pid) curApp = i;
+                    else if (tmp == 0) break;
+                }
+                if (curApp == -1) Log.Debug("Forefround app not DX/OGL app.");
+                else Log.Debug("Foreground app monitored by RTSS, #" + curApp);
+                threadSyncer.Reset();
+            }
+        }
+
         static uint pid, tmp;
         private static void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
+            fgTimer.Stop();
             pid = 0;
             NativeMethods.GetWindowThreadProcessId(hwnd, out pid);
             //Process p = Process.GetProcessById((int)pid);
             Log.Debug("Focus change. PID: " + pid);
             //p.Dispose();
             curApp = -1;
-            for (int i = 0; i < 256; i++)
-            {
-                tmp = NativeMethods.getNthProc(i);
-                //Log.Debug(i + "th: " + tmp);
-                if (tmp == pid) curApp = i;
-                else if (tmp == 0) break;
-            }
+            fgTimer.Start();
             
         }
 
@@ -164,6 +202,10 @@ namespace WearFPSForms
 
         public static void finishRTSS()
         {
+            runFgThread = false;
+            threadSyncer.Set();
+            fgTimer.Stop();
+            fgTimer.Dispose();
 
             if (!rtssStartedMyself) return;
 
