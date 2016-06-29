@@ -43,18 +43,28 @@ namespace WearFPSForms
 
             using (WebClient client = new WebClient())
             {
-                string s = client.DownloadString("http://pc.oviedo.me/wfs/v");
-                int ver = Int32.Parse(s);
-                Log.Info("Última versión en línea: " + ver + ". Versión local: " + Properties.Settings.Default.version);
-                if (ver > Properties.Settings.Default.version)
+                int ver = -1;
+                try
                 {
-                    File.WriteAllBytes(@"updater.exe", Properties.Resources.updater);
-                    using (StreamWriter sw = new StreamWriter("update-info"))
+                    string s = client.DownloadString("http://pc.oviedo.me/wfs/v");
+                    ver = Int32.Parse(s);
+                } catch (Exception e)
+                {
+                    Log.Warn("No se ha podido conectar con el servidor de actualización: " + e.Message);
+                }
+                if (ver > 0)
+                {
+                    Log.Info("Última versión en línea: " + ver + ". Versión local: " + Properties.Settings.Default.version);
+                    if (ver > Properties.Settings.Default.version)
                     {
-                        sw.Write("zip;http://pc.oviedo.me/wfs/" + ver + ".zip;release.zip");
+                        File.WriteAllBytes(@"updater.exe", Properties.Resources.updater);
+                        using (StreamWriter sw = new StreamWriter("update-info"))
+                        {
+                            sw.Write("zip;http://pc.oviedo.me/wfs/" + ver + ".zip;release.zip");
+                        }
+                        Process.Start("updater.exe");
+                        return;
                     }
-                    Process.Start("updater.exe");
-                    return;
                 }
             }
 

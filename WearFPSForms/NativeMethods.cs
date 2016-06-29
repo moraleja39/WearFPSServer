@@ -32,6 +32,9 @@ namespace WearFPSForms
         [DllImport("user32.dll")]
         public static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr hmodWinEventProc, WinEventDelegate lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
 
+        [DllImport("user32.dll")]
+        public static extern bool UnhookWinEvent(IntPtr hWinEventHook);
+
         [DllImport("rtssbridge.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern uint getNthProc(int i);
 

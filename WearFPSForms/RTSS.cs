@@ -46,6 +46,7 @@ namespace WearFPSForms
         private const uint WINEVENT_OUTOFCONTEXT = 0;
         private const uint EVENT_SYSTEM_FOREGROUND = 3;
 
+        private static IntPtr m_hook = IntPtr.Zero;
         static NativeMethods.WinEventDelegate wed = null;
 
         public static void init()
@@ -77,7 +78,7 @@ namespace WearFPSForms
 
             /////
             wed = new NativeMethods.WinEventDelegate(WinEventProc);
-            IntPtr m_hhook = NativeMethods.SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, wed, 0, 0, WINEVENT_OUTOFCONTEXT);
+            m_hook = NativeMethods.SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, wed, 0, 0, WINEVENT_OUTOFCONTEXT);
 
             Log.Info("RTSS iniciado correctamente.");
 
@@ -202,6 +203,7 @@ namespace WearFPSForms
 
         public static void finishRTSS()
         {
+            if (m_hook != IntPtr.Zero) NativeMethods.UnhookWinEvent(m_hook);
             runFgThread = false;
             threadSyncer.Set();
             fgTimer.Stop();

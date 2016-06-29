@@ -87,7 +87,16 @@ namespace WearFPSForms
                 if (temp == null || load == null || clock == null) this.online = false;
                 else this.online = true;
             }
-            public void update() { this.hardware.Update(); }
+            public void update() {
+                this.hardware.Update();
+                if (temp == null || load == null || clock == null ||
+                    !temp.Value.HasValue || !load.Value.HasValue || !clock.Value.HasValue ||
+                    temp.Value <= 0 || load.Value < 0 || clock.Value <= 0)
+                {
+                    this.online = false;
+                }
+                else this.online = true;
+            }
             public bool isOnline()
             {
                 return this.online;
@@ -97,7 +106,9 @@ namespace WearFPSForms
         static cCPU cpu = new cCPU();
         static cGPU gpu = new cGPU();
 
-        static Computer computer;
+        static Computer computer = null;
+
+        static Object updateLocker = new object();
 
 
         static public void initThreaded()
@@ -115,81 +126,17 @@ namespace WearFPSForms
         static public void stopThreaded()
         {
             //mRun = false;
+            gpuMonThread.Abort();
         }
 
         static public void init()
         {
             Log.Info("Iniciando monitor de hardware...");
 
+            newComputer();
+            
             //int i = 0;
-            computer = new Computer()
-            {
-                CPUEnabled = true,
-                GPUEnabled = true,
-                //RAMEnabled = true,
-                MainboardEnabled = true/*,
-                FanControllerEnabled = true,
-                HDDEnabled = true*/
-            };
-            computer.Open();
-
-            foreach (var hardware in computer.Hardware)
-            {
-                hardware.Update();
-                foreach (var sub in hardware.SubHardware)
-                {
-                    sub.Update();
-                }
-            }
-
-
-            foreach (var item in computer.Hardware)
-            {
-                Log.Data("Hardware item: " + item.Name + " (" + item.HardwareType.ToString() + ")");
-                if (item.HardwareType == HardwareType.CPU)
-                {
-                    cpu.hardware = item;
-                    cpu.findSensors();
-                    
-                }
-                if (item.HardwareType == HardwareType.GpuAti || item.HardwareType == HardwareType.GpuNvidia)
-                {
-                    gpu.hardware = item;
-                    gpu.findSensors();
-                }
-                /*if (item.HardwareType == HardwareType.Mainboard)
-                {
-                    foreach (var sensor in item.Sensors)
-                    {
-                        Log.Data("Mainboard Sensor: " + sensor.Name + " (" + sensor.SensorType.ToString() + ")");
-                    }
-                    foreach (var sub in item.SubHardware)
-                    {
-                        Log.Data("Mainboard Subhardware: " + sub.Name + " (" + sub.HardwareType.ToString() + ")");
-                        if (sub.HardwareType == HardwareType.SuperIO)
-                        {
-                            superIOHardware = sub;
-                            foreach (var sensor in sub.Sensors)
-                            {
-                                Log.Data(sub.HardwareType + " Sensor: " + sensor.Name + " (" + sensor.SensorType.ToString() + ")");
-                                if (sensor.SensorType == SensorType.Temperature)
-                                {
-                                    if (sensor.Index == 0) cpuTempIOSensor = sensor;
-                                }
-                            }
-                        }
-                    }
-                }*/
-            }
-
-            Log.Debug("Monitor de hardware iniciado correctamente");
-            gpu.hardware.SensorAdded += new SensorEventHandler(sensorAdded);
-            gpu.hardware.SensorRemoved += new SensorEventHandler(sensorRemoved);
-            if (!gpu.isOnline()) startGPUMonitorThread();
-            computer.HardwareAdded += new HardwareEventHandler(hardwareAdded);
-            computer.HardwareRemoved += new HardwareEventHandler(hardwareRemoved);
-
-            /*Log.Debug(cpuHardware.ToString());
+                        /*Log.Debug(cpuHardware.ToString());
             Log.Debug(gpuHardware.ToString());
             Log.Debug(superIOHardware.ToString());
             Log.Debug(cpuTempIOSensor.ToString());
@@ -202,15 +149,91 @@ namespace WearFPSForms
 
         }
 
+        private static void newComputer()
+        {
+            lock (updateLocker)
+            {
+                computer = new Computer()
+                {
+                    CPUEnabled = true,
+                    GPUEnabled = true,
+                    //RAMEnabled = true,
+                    MainboardEnabled = true/*,
+                FanControllerEnabled = true,
+                HDDEnabled = true*/
+                };
+                computer.Open();
+
+                foreach (var hardware in computer.Hardware)
+                {
+                    hardware.Update();
+                    foreach (var sub in hardware.SubHardware)
+                    {
+                        sub.Update();
+                    }
+                }
+
+
+                foreach (var item in computer.Hardware)
+                {
+                    Log.Data("Hardware item: " + item.Name + " (" + item.HardwareType.ToString() + ")");
+                    if (item.HardwareType == HardwareType.CPU)
+                    {
+                        cpu.hardware = item;
+                        cpu.findSensors();
+
+                    }
+                    if (item.HardwareType == HardwareType.GpuAti || item.HardwareType == HardwareType.GpuNvidia)
+                    {
+                        gpu.hardware = item;
+                        gpu.findSensors();
+                    }
+                    /*if (item.HardwareType == HardwareType.Mainboard)
+                    {
+                        foreach (var sensor in item.Sensors)
+                        {
+                            Log.Data("Mainboard Sensor: " + sensor.Name + " (" + sensor.SensorType.ToString() + ")");
+                        }
+                        foreach (var sub in item.SubHardware)
+                        {
+                            Log.Data("Mainboard Subhardware: " + sub.Name + " (" + sub.HardwareType.ToString() + ")");
+                            if (sub.HardwareType == HardwareType.SuperIO)
+                            {
+                                superIOHardware = sub;
+                                foreach (var sensor in sub.Sensors)
+                                {
+                                    Log.Data(sub.HardwareType + " Sensor: " + sensor.Name + " (" + sensor.SensorType.ToString() + ")");
+                                    if (sensor.SensorType == SensorType.Temperature)
+                                    {
+                                        if (sensor.Index == 0) cpuTempIOSensor = sensor;
+                                    }
+                                }
+                            }
+                        }
+                    }*/
+                }
+
+                Log.Debug("Monitor de hardware iniciado correctamente");
+                //if (!gpu.isOnline())
+                //{
+                    startGPUMonitorThread();
+                    gpu.hardware.SensorAdded += new SensorEventHandler(sensorAdded);
+                    gpu.hardware.SensorRemoved += new SensorEventHandler(sensorRemoved);
+                //}
+            }
+        }
+
         private static void sensorAdded(ISensor sensor)
         {
             Log.Info("GPU Sensor added: " + sensor.Name);
-            gpu.findSensors();
+            //gpu.findSensors();
+            reset.Set();
         }
         private static void sensorRemoved(ISensor sensor)
         {
             Log.Info("GPU sensor removed: " + sensor.Name);
-            gpu.findSensors();
+            //gpu.findSensors();
+            reset.Set();
         }
 
         private static void hardwareAdded(IHardware hardware)
@@ -230,6 +253,7 @@ namespace WearFPSForms
 
         private static Thread gpuMonThread = null;
         private static bool runGpuMonThread = false;
+        private static ManualResetEvent reset = new ManualResetEvent(false);
         private static void startGPUMonitorThread()
         {
             runGpuMonThread = true;
@@ -246,18 +270,21 @@ namespace WearFPSForms
         {
             while (runGpuMonThread)
             {
-                var r = new Random();
-                Thread.Sleep(8000 + r.Next(-1000, 1000));
-                gpu.findSensors();
-                if (gpu.isOnline()) stopGPUMonitorThread();
+                reset.WaitOne();
+                newComputer();
+                Thread.Sleep(5000);
+                reset.Reset();
             }
         }
 
         public static void update()
         {
-            cpu.update();
-            gpu.update();
-            if (!gpu.clock.Value.HasValue || (gpu.clock.Value.HasValue && gpu.clock.Value <= 0f)) startGPUMonitorThread();
+            lock (updateLocker)
+            {
+                cpu.update();
+                gpu.update();
+            }
+            //if (!gpu.clock.Value.HasValue || (gpu.clock.Value.HasValue && gpu.clock.Value <= 0f)) startGPUMonitorThread();
             //superIOHardware.Update();
         }
 
@@ -293,7 +320,7 @@ namespace WearFPSForms
         {
             get
             {
-                return (gpu.temp != null && gpu.temp.Value.HasValue) ? gpu.temp.Value.Value : -1f;
+                return (gpu.isOnline()) ? gpu.temp.Value.Value : -1f;
             }
         }
 
@@ -301,7 +328,7 @@ namespace WearFPSForms
         {
             get
             {
-                return (gpu.load != null && gpu.load.Value.HasValue) ? gpu.load.Value.Value : -1f;
+                return (gpu.isOnline()) ? gpu.load.Value.Value : -1f;
 
             }
         }
@@ -318,7 +345,7 @@ namespace WearFPSForms
         {
             get
             {
-                return (gpu.clock != null && gpu.clock.Value.HasValue) ? gpu.clock.Value.Value : -1f;
+                return (gpu.isOnline()) ? gpu.clock.Value.Value : -1f;
             }
         }
     }
