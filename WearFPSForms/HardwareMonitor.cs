@@ -292,26 +292,26 @@ namespace WearFPSForms
         {
             get
             {
-                if (cpu.temp.Value.HasValue) return cpu.temp.Value.Value;
+                if (cpu.hardware != null && cpu.temp != null && cpu.temp.Value.HasValue) return cpu.temp.Value.Value;
                 else return -1f;
             }
         }
 
         public static string CPUName
         {
-            get { return cpu.hardware.Name; }
+            get { if (cpu.hardware != null) return cpu.hardware.Name; else return ""; }
         }
 
         public static string GPUName
         {
-            get { return gpu.hardware.Name; }
+            get { if (gpu.hardware != null) return gpu.hardware.Name; else return ""; }
         }
 
         public static float CPULoad
         {
             get
             {
-                if (cpu.load.Value.HasValue) return cpu.load.Value.Value;
+                if (cpu.hardware != null && cpu.load != null && cpu.load.Value.HasValue) return cpu.load.Value.Value;
                 else return -1f;
             }
         }
@@ -337,7 +337,7 @@ namespace WearFPSForms
         {
             get
             {
-                return (cpu.clock.Value.HasValue) ? cpu.clock.Value.Value : -1f;
+                return (cpu.hardware != null && cpu.clock != null && cpu.clock.Value.HasValue) ? cpu.clock.Value.Value : -1f;
             }
         }
 

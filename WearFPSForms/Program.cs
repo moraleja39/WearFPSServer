@@ -41,9 +41,10 @@ namespace WearFPSForms
                 File.Delete(@"updater.exe");
             }
 
-            using (WebClient client = new WebClient())
+            using (MyWebClient client = new MyWebClient())
             {
                 int ver = -1;
+                
                 try
                 {
                     string s = client.DownloadString("http://pc.oviedo.me/wfs/v");

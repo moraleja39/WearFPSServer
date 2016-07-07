@@ -121,6 +121,9 @@
     <Compile Include="FirewallHelper.cs" />
     <Compile Include="HardwareMonitor.cs" />
     <Compile Include="Log.cs" />
+    <Compile Include="MyWebClient.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Networking.cs" />
     <Compile Include="Program.cs" />
@@ -148,7 +151,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include=".travis.yml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
