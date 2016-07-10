@@ -22,26 +22,5 @@ namespace WearFPSForms.Properties {
                 return defaultInstance;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool firstRun {
-            get {
-                return ((bool)(this["firstRun"]));
-            }
-            set {
-                this["firstRun"] = value;
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("6")]
-        public int version {
-            get {
-                return ((int)(this["version"]));
-            }
-        }
     }
 }
