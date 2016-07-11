@@ -130,6 +130,9 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Helpers\NativeMethods.cs" />
+    <Compile Include="Net\Client.cs" />
+    <Compile Include="Net\Connection.cs" />
+    <Compile Include="Net\LocalInterfaces.cs" />
     <Compile Include="Net\Networking.cs" />
     <Compile Include="Net\UdpBroadcastReceiver.cs" />
     <Compile Include="Program.cs" />

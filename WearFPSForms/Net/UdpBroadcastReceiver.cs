@@ -10,17 +10,21 @@ using System.Threading.Tasks;
 namespace WearFPSForms.Net {
     class UdpBroadcastReceiver {
         private UdpClient listener;
+
         private int udpPort = 55632;
+
         private Thread udpThread;
         private volatile bool runUdpServer;
 
-        private string localIP;
-        private IPAddress localIPAddress;
-
-        public UdpBroadcastReceiver(string ip) {
+        /*public UdpBroadcastReceiver(string ip) {
             this.localIP = ip;
             if (!IPAddress.TryParse(ip, out localIPAddress)) {
                 throw new InitializeException("La cadena " + ip + " no representa una dirección IP válida");
+            }
+        }*/
+        public UdpBroadcastReceiver() {
+            if (LocalInterfaces.Count <= 0) {
+                throw new InitializeException("No hay direcciones IP locales");
             }
         }
 
@@ -44,12 +48,14 @@ namespace WearFPSForms.Net {
                             Log.Warn(String.Format("Received an empty UDP broadcast from {0}", groupEP.ToString()));
                             continue;
                         } else {
-                            Log.Info(String.Format("Received broadcast from {0} :\n {1}\n", groupEP.ToString(), BitConverter.ToString(bytes)));
+                            Log.Info(String.Format("Received broadcast from {0}: {1}", groupEP.ToString(), BitConverter.ToString(bytes)));
                         }
                         switch (bytes[0]) {
                             // Server IP Request
                             case 0x00:
-                                byte[] res = Encoding.ASCII.GetBytes(localIP);
+                                IPAddress ip = LocalInterfaces.GetAssociatedIp(groupEP.Address);
+                                if (ip == null) throw new Exception("De alguna extraña manera, la dirección IP del cliente no se corresponde con ninguna de las interfaces de red locales");
+                                byte[] res = Encoding.ASCII.GetBytes(ip.ToString());
                                 listener.Send(res, res.Length, groupEP);
                                 break;
                             default:

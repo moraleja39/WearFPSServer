@@ -31,7 +31,7 @@ namespace WearFPSForms {
             public void findSensors() {
                 this.hardware.Update();
                 foreach (var sensor in this.hardware.Sensors) {
-                    Log.Data("CPU Sensor: " + sensor.Name + " (" + sensor.SensorType.ToString() + ")");
+                    //Log.Data("CPU Sensor: " + sensor.Name + " (" + sensor.SensorType.ToString() + ")");
                     if (sensor.SensorType == SensorType.Temperature) {
                         if (sensor.Name.Equals("CPU Package", StringComparison.InvariantCultureIgnoreCase)) this.temp = sensor;
                     } else if (sensor.SensorType == SensorType.Load) {
@@ -56,7 +56,7 @@ namespace WearFPSForms {
                 this.hardware.Update();
                 temp = null; load = null; clock = null;
                 foreach (var sensor in this.hardware.Sensors) {
-                    Log.Data("GPU Sensor: " + sensor.Name + " (" + sensor.SensorType.ToString() + ")");
+                    //Log.Data("GPU Sensor: " + sensor.Name + " (" + sensor.SensorType.ToString() + ")");
                     if (sensor.SensorType == SensorType.Temperature) {
                         this.temp = sensor;
                     } else if (sensor.SensorType == SensorType.Load) {

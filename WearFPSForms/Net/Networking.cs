@@ -12,9 +12,6 @@ using Google.Protobuf;
 
 namespace WearFPSForms {
     static class Networking {
-        private static String localIP = null;
-        private static String localSubnetMaskt = null;
-
         private static UdpBroadcastReceiver udpBroadcastReceiver;
 
         private static TcpListener tcpServer;
@@ -29,11 +26,7 @@ namespace WearFPSForms {
             foreach (NetworkInterface adapter in nics) {
                 foreach (var x in adapter.GetIPProperties().UnicastAddresses) {
                     if (x.Address.AddressFamily == AddressFamily.InterNetwork && x.IsDnsEligible) {
-                        Log.Info(String.Format(" IPAddress ........ : {0:x}", x.Address.ToString()));
-                        if (localIP == null) {
-                            localIP = x.Address.ToString();
-                            localSubnetMaskt = x.IPv4Mask.ToString();
-                        }
+                        LocalInterfaces.Add(x.Address.ToString(), x.IPv4Mask.ToString(), adapter.Name);
                     }
                 }
             }
@@ -41,7 +34,7 @@ namespace WearFPSForms {
 
         public static void start() {
             findLocalIP();
-            udpBroadcastReceiver = new UdpBroadcastReceiver(localIP);
+            udpBroadcastReceiver = new UdpBroadcastReceiver();
             udpBroadcastReceiver.start();
             startTcpListener();
         }
@@ -58,13 +51,13 @@ namespace WearFPSForms {
             //findLocalIP();
             //long ip = long.Parse(localIP);
             //long snm = long.Parse(localSubnetMaskt);
-            byte[] locIpBytes = IPAddress.Parse(localIP).GetAddressBytes();
+            /*byte[] locIpBytes = IPAddress.Parse(localIP).GetAddressBytes();
             byte[] maskIpBytes = IPAddress.Parse(localSubnetMaskt).GetAddressBytes();
             byte[] ip = new byte[locIpBytes.Length];
             for (int i = 0; i < locIpBytes.Length; i++) {
                 ip[i] = (byte)(locIpBytes[i] & maskIpBytes[i]);
             }
-            IPAddress local = new IPAddress(ip);
+            IPAddress local = new IPAddress(ip);*/
 
             bool run = true;
 
