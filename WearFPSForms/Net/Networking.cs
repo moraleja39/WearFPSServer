@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WearFPSForms.Net;
+using Google.Protobuf;
 
 namespace WearFPSForms {
     static class Networking {
@@ -102,13 +103,13 @@ namespace WearFPSForms {
             Log.Info("Cliente conectado: " + tcpClient.Client.RemoteEndPoint.ToString());
 
             NetworkStream clientStream = tcpClient.GetStream();
-            string str = "";
-            ASCIIEncoding encoder = new ASCIIEncoding();
-            byte[] buffer = new byte[256];
-            int len = 0;
+            /*string str = "";
+            ASCIIEncoding encoder = new ASCIIEncoding();*/
+            //byte[] buffer = new byte[256];
+            //int len = 0;
             bool run = true;
 
-            var sendStr = new Action(() => {
+            /*var sendStr = new Action(() => {
                 len = encoder.GetBytes(str, 0, str.Length, buffer, 0);
 
                 try {
@@ -122,14 +123,40 @@ namespace WearFPSForms {
                     Log.Error("Exception: " + e.ToString());
                     run = false;
                 }
-            });
+            });*/
 
-            Thread.Sleep(150);
+            //Thread.Sleep(150);
 
-            str = ":cpu=" + HardwareMonitor.CPUName + "\n";
+            ComputerInfo ci = new ComputerInfo {
+                CpuName = HardwareMonitor.CPUName,
+                GpuName = HardwareMonitor.GPUName
+            };
+
+            /*str = ":cpu=" + HardwareMonitor.CPUName + "\n";
             sendStr();
             str = ":gpu=" + HardwareMonitor.GPUName + "\n";
-            sendStr();
+            sendStr();*/
+
+            try {
+                // Tipo
+                clientStream.WriteByte(0x00);
+                // Tamaño
+                /*int size = ci.CalculateSize();
+                clientStream.WriteByte((byte)(size >> 8));
+                clientStream.WriteByte((byte)size);*/
+                // Datos
+                //ci.WriteTo(clientStream);
+                ci.WriteDelimitedTo(clientStream);
+                clientStream.Flush();
+            } catch (System.IO.IOException) {
+                Log.Info("El cliente " + tcpClient.Client.RemoteEndPoint.ToString() + " se ha desconectado");
+                run = false;
+            } catch (Exception e) {
+                Log.Error("Exception: " + e.ToString());
+                run = false;
+            }
+
+            ci = null;
 
 
 
@@ -138,14 +165,40 @@ namespace WearFPSForms {
                 //bufferincmessage = encoder.GetString(message, 0, bytesRead);
 
                 HardwareMonitor.update();
-                str = (int)Math.Round(HardwareMonitor.CPULoad) + ";" + (int)Math.Round(HardwareMonitor.GPULoad) + ";";
+
+                DataInt dataProto = new DataInt {
+                    CpuFreq = (int)Math.Round(HardwareMonitor.CPUFreq),
+                    CpuLoad = (int)Math.Round(HardwareMonitor.CPULoad),
+                    CpuTemp = (int)Math.Round(HardwareMonitor.CPUTemp),
+                    Fps = (int)Math.Round(RTSS.getFPS()),
+                    GpuFreq = (int)Math.Round(HardwareMonitor.GPUFreq),
+                    GpuLoad = (int)Math.Round(HardwareMonitor.GPULoad),
+                    GpuTemp = (int)Math.Round(HardwareMonitor.GPUTemp)
+                };
+                //byte[] type = { 0x01 };
+                //clientStream.Write(type, 0, 1);
+                try {
+                    clientStream.WriteByte(0x01);
+                    //dataProto.WriteTo(clientStream);
+                    dataProto.WriteDelimitedTo(clientStream);
+                    clientStream.Flush();
+                } catch (System.IO.IOException) {
+                    Log.Info("El cliente " + tcpClient.Client.RemoteEndPoint.ToString() + " se ha desconectado");
+                    run = false;
+                } catch (Exception e) {
+                    Log.Error("Exception: " + e.ToString());
+                    run = false;
+                }
+
+                /*str = (int)Math.Round(HardwareMonitor.CPULoad) + ";" + (int)Math.Round(HardwareMonitor.GPULoad) + ";";
                 str += (int)Math.Round(RTSS.getFPS());
                 str += ";" + (int)Math.Round(HardwareMonitor.CPUTemp) + ";" + (int)Math.Round(HardwareMonitor.GPUTemp);
                 str += ";" + (int)Math.Round(HardwareMonitor.CPUFreq) + ";" + (int)Math.Round(HardwareMonitor.GPUFreq) + "\n";
                 //Log.Data(s);
                 //byte[] buffer = encoder.GetBytes(buf,);
 
-                sendStr();
+                sendStr();*/
+                //dataProto.WriteTo()
 
 
                 Thread.Sleep(freq);
