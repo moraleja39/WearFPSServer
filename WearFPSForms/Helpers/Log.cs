@@ -26,6 +26,8 @@ namespace WearFPSForms
         private static LogLevel _logLevel;
         private static StreamWriter _logWriter;
 
+        private static CustomConsole _console;
+
         /// <summary>
         /// Creates the log file stream and sets the initial log level.
         /// </summary>
@@ -37,7 +39,17 @@ namespace WearFPSForms
             _filename = filename;
             _logLevel = logLevel;
 
+            _console = null;
+
             _logWriter = new StreamWriter(filename, !clear);
+        }
+
+        public static void EnableCustomConsole(CustomConsole console) {
+            _console = console;
+        }
+
+        public static void DisableCustomConsole() {
+            _console = null;
         }
 
         /// <summary>
@@ -85,6 +97,8 @@ namespace WearFPSForms
             String text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) + " - " + caller + message;
 
             Console.WriteLine(text);
+
+            if (_console != null) _console.Write(text);
 
             if (!MayWriteType(level))
             {

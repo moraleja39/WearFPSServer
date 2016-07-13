@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace WearFPSForms.Net {
+
     static class LocalInterfaces {
         private struct Interfaz {
             public IPAddress ip;

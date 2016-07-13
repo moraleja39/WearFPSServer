@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace WearFPSForms.Net {
-    class UdpBroadcastReceiver {
+    class UdpBroadcastReceiver : IDisposable{
         private UdpClient listener;
 
         private int udpPort = 55632;
@@ -68,6 +68,7 @@ namespace WearFPSForms.Net {
                     runUdpServer = false;
                 } finally {
                     listener.Close();
+                    listener = null;
                 }
             }));
             udpThread.Start();
@@ -76,7 +77,11 @@ namespace WearFPSForms.Net {
 
         public void stop() {
             listener.Close();
+            this.Dispose();
         }
 
+        public void Dispose() {
+            if (listener != null) listener.Close();
+        }
     }
 }

@@ -396,7 +396,8 @@ namespace WearFPSForms
 
     /// 
     ///
-    /// 
+    ///
+    [Serializable]
     public class FirewallHelperException : System.Exception
     {
         /// 

@@ -93,7 +93,7 @@ namespace WearFPSForms
         {
             if (curApp < 0) return 0f;
             fps = NativeMethods.computeFPS(curApp);
-            Log.Data("unmanaged fps: " + fps);
+            //Log.Data("unmanaged fps: " + fps);
             if (fps < 0 || fps > 999) fps = 0f;
             return fps;
         }
@@ -131,8 +131,8 @@ namespace WearFPSForms
                     if (tmp == pid) curApp = i;
                     else if (tmp == 0) break;
                 }
-                if (curApp == -1) Log.Debug("Forefround app not DX/OGL app.");
-                else Log.Debug("Foreground app monitored by RTSS, #" + curApp);
+                //if (curApp == -1) Log.Debug("Forefround app not DX/OGL app.");
+                if (curApp == -1) { } else Log.Debug("Foreground app monitored by RTSS, #" + curApp);
                 threadSyncer.Reset();
             }
         }
@@ -144,7 +144,7 @@ namespace WearFPSForms
             pid = 0;
             NativeMethods.GetWindowThreadProcessId(hwnd, out pid);
             //Process p = Process.GetProcessById((int)pid);
-            Log.Debug("Focus change. PID: " + pid);
+            //Log.Debug("Focus change. PID: " + pid);
             //p.Dispose();
             curApp = -1;
             fgTimer.Start();

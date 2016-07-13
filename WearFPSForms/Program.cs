@@ -14,6 +14,8 @@ namespace WearFPSForms {
 
         static readonly int VERSION = 6;
 
+        static CustomConsole console = null;
+
         static NotifyIcon taskIcon;
         static ContextMenuStrip menu;
         static short toInicialize = 2;
@@ -82,16 +84,13 @@ namespace WearFPSForms {
 
             menu = new ContextMenuStrip();
             menu.Items.Add("Salir").Click += salir_Click;
+            //menu.Items.Add("Toggle console").Click += toggleconsole_Click;
 
             taskIcon = new NotifyIcon();
             taskIcon.Text = "WearFPS Server 0.1." + VERSION;
             taskIcon.Icon = Properties.Resources.NotifyIcon;
             taskIcon.ContextMenuStrip = menu;
             taskIcon.Visible = true;
-
-            Console.WriteLine((int)-1f);
-
-
 
             //Application.Run(new Form1());
 
@@ -126,6 +125,20 @@ namespace WearFPSForms {
             HardwareMonitor.stopThreaded();
             RTSS.finishRTSS();
             Application.Exit();
+        }
+
+        private static void toggleconsole_Click(object sender, EventArgs e) {
+            Log.Debug("toggle console clicked");
+            if (console == null) {
+                console = new CustomConsole();
+                console.Show();
+                Log.EnableCustomConsole(console);
+            } else {
+                Log.DisableCustomConsole();
+                console.Close();
+                console.Dispose();
+                console = null;
+            }
         }
 
         static void Application_ThreadException(object sender, ThreadExceptionEventArgs e) {
