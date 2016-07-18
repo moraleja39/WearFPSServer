@@ -9,18 +9,11 @@ using System.Threading;
 namespace WearFPSForms {
     static class HardwareMonitor {
         static Thread t;
-        //static volatile bool mRun;
 
-        /*static IHardware cpuHardware = null;
-        static ISensor cpuTempSensor = null;
-        static ISensor cpuUsageSensor = null;
-        static IHardware gpuHardware = null;
-        static ISensor gpuTempSensor = null;
-        static ISensor gpuUsageSensor = null;
-        static IHardware superIOHardware = null;
-        static ISensor cpuTempIOSensor = null;
-        static ISensor cpuFreqSensor = null;
-        static ISensor gpuFreqSensor = null;*/
+        static Thread updateThread;
+        static volatile int updateInterval;
+        static volatile bool run;
+        static volatile bool shouldUpdate;
 
         private class cCPU {
             public IHardware hardware = null;
@@ -100,28 +93,57 @@ namespace WearFPSForms {
         }
 
         static public void stopThreaded() {
-            //mRun = false;
+            run = false;
             gpuMonThread.Abort();
+            SaveIntervalToINI();
         }
 
         static public void init() {
             Log.Info("Iniciando monitor de hardware...");
 
             newComputer();
+            startGPUMonitorThread();
 
-            //int i = 0;
-            /*Log.Debug(cpuHardware.ToString());
-Log.Debug(gpuHardware.ToString());
-Log.Debug(superIOHardware.ToString());
-Log.Debug(cpuTempIOSensor.ToString());
-Log.Debug(gpuTempSensor.ToString());
-Log.Debug(cpuUsageSensor.ToString());
-Log.Debug(gpuUsageSensor.ToString());
-Log.Debug(cpuTempSensor.ToString());*/
+            ReadIntervalFromINI(350);
+
+            run = true;
+            shouldUpdate = false;
+            updateThread = new Thread(new ThreadStart(UpdateRunner));
+            updateThread.Start();
 
             Program.componentLoaded();
 
         }
+
+        static private void ReadIntervalFromINI(int defaultValue) {
+            var ini = new IniFile();
+            if (!ini.KeyExists("update_interval")) {
+                updateInterval = defaultValue;
+            } else {
+                updateInterval = Int32.Parse(ini.Read("update_interval"));
+            }
+            ini = null;
+        }
+        static private void SaveIntervalToINI() {
+            var ini = new IniFile();
+            ini.Write("update_interval", updateInterval.ToString());
+            ini = null;
+        }
+
+        static private void UpdateRunner() {
+            while (run) {
+                Thread.Sleep(updateInterval);
+                if (!run) return;
+                if (!shouldUpdate) continue;
+                update();
+                Net.Clients.NotifyDataChanged();
+            }
+        }
+
+        static public void ShouldUpdate(bool should) {
+            shouldUpdate = should;
+        }
+
 
         private static void newComputer() {
             lock (updateLocker) {
@@ -157,7 +179,6 @@ Log.Debug(cpuTempSensor.ToString());*/
                 }
 
                 Log.Debug("Monitor de hardware iniciado correctamente");
-                startGPUMonitorThread();
                 gpu.hardware.SensorAdded += new SensorEventHandler(sensorAdded);
                 gpu.hardware.SensorRemoved += new SensorEventHandler(sensorRemoved);
             }
@@ -208,7 +229,7 @@ Log.Debug(cpuTempSensor.ToString());*/
             }
         }
 
-        public static void update() {
+        private static void update() {
             lock (updateLocker) {
                 cpu.update();
                 gpu.update();

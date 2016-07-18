@@ -19,6 +19,11 @@ namespace WearFPSForms {
             ActiveControl = label1;
         }
 
+        private void CustomConsole_FormClosing(object sender, FormClosingEventArgs e) {
+            Log.Debug("Console window closing...");
+            Program.ConsoleClosing();
+        }
+
         public void Write(string text) {
             textBox.BeginInvoke((Action)(() => textBox.AppendText(text + Environment.NewLine) ));
         }

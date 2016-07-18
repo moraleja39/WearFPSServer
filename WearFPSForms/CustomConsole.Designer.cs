@@ -68,6 +68,7 @@
             this.MinimumSize = new System.Drawing.Size(700, 400);
             this.Name = "CustomConsole";
             this.Text = "Consola";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CustomConsole_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 

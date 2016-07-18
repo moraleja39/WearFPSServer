@@ -36,6 +36,26 @@ namespace WearFPSForms {
 
             Log.Initialize(".\\WearFPS.log", LogLevel.All, true);
 
+            var ini = new IniFile();
+
+            if (ini.Read("first_run") != "false") {
+                FirewallHelper fh = FirewallHelper.Instance;
+                if (fh.IsFirewallInstalled) {
+                    Log.Debug("Windows Firewall is installed. Adding exception...");
+                    var path = Application.ExecutablePath;
+                    Log.Debug("Executable path is " + path);
+                    fh.GrantAuthorization(path, "WearFPS");
+                    fh = null;
+                    /*Properties.Settings.Default.firstRun = false;
+                    Properties.Settings.Default.Save();*/
+                    ini.Write("first_run", "false");
+                } else Log.Debug("Windows Firewall is not installed.");
+            }
+            if (ini.KeyExists("show_console") && Boolean.Parse(ini.Read("show_console"))) {
+                toggleconsole_Click(null, null);
+            }
+            ini = null;
+
             if (File.Exists(@"update-info")) {
                 Log.Debug("Eliminando archivos de actualización...");
                 File.Delete(@"update-info");
@@ -64,27 +84,9 @@ namespace WearFPSForms {
                 }
             }
 
-            // 
-            var ini = new IniFile();
-
-            if (ini.Read("firstRun") != "false") {
-                FirewallHelper fh = FirewallHelper.Instance;
-                if (fh.IsFirewallInstalled) {
-                    Log.Debug("Windows Firewall is installed. Adding exception...");
-                    var path = Application.ExecutablePath;
-                    Log.Debug("Executable path is " + path);
-                    fh.GrantAuthorization(path, "WearFPS");
-                    fh = null;
-                    /*Properties.Settings.Default.firstRun = false;
-                    Properties.Settings.Default.Save();*/
-                    ini.Write("firstRun", "false");
-                } else Log.Debug("Windows Firewall is not installed.");
-            }
-            ini = null;
-
             menu = new ContextMenuStrip();
+            menu.Items.Add("Toggle console").Click += toggleconsole_Click;
             menu.Items.Add("Salir").Click += salir_Click;
-            //menu.Items.Add("Toggle console").Click += toggleconsole_Click;
 
             taskIcon = new NotifyIcon();
             taskIcon.Text = "WearFPS Server 0.1." + VERSION;
@@ -117,6 +119,11 @@ namespace WearFPSForms {
             }
         }
 
+        public static void ConsoleClosing() {
+            console = null;
+            Log.DisableCustomConsole();
+        }
+
         private static void salir_Click(object sender, EventArgs e) {
             taskIcon.Visible = false;
             /*Networking.stopUdpListener();
@@ -124,6 +131,14 @@ namespace WearFPSForms {
             Networking.stop();
             HardwareMonitor.stopThreaded();
             RTSS.finishRTSS();
+
+            var ini = new IniFile();
+            if (console != null) {
+                ini.Write("show_console", "true");
+            } else {
+                ini.Write("show_console", "false");
+            }
+
             Application.Exit();
         }
 
@@ -136,13 +151,12 @@ namespace WearFPSForms {
             } else {
                 Log.DisableCustomConsole();
                 console.Close();
-                console.Dispose();
                 console = null;
             }
         }
 
         static void Application_ThreadException(object sender, ThreadExceptionEventArgs e) {
-            Log.Error("Unhandled thread exception: " + e.ToString());
+            Log.Error("Unhandled thread exception: " + e.Exception.StackTrace);
             MessageBox.Show(sender.ToString() + "\n" + e.Exception.Message, "Unhandled Thread Exception");
             //throw e.Exception;
             salir_Click(null, null);

@@ -10,12 +10,16 @@ using System.Threading.Tasks;
 
 namespace WearFPSForms.Net {
     class Client {
-        private volatile int freq = 350;
         private TcpClient client;
         private IPEndPoint clientEP;
 
         private Thread tcpReceiveThread;
+        private Thread tcpSendThread;
         private Thread dataSender;
+        private AutoResetEvent dataReset;
+
+        private Queue<byte> tcpQueue;
+        private AutoResetEvent tcpReset;
 
         private bool initialized = false;
         private bool run;
@@ -38,11 +42,15 @@ namespace WearFPSForms.Net {
 
             lastHB = DateTime.Now;
 
+            tcpReset = new AutoResetEvent(false);
+            tcpQueue = new Queue<byte>();
+
             tcpReceiveThread = new Thread(new ThreadStart(tcpReceiveRunner));
             tcpReceiveThread.Name = "ClientTcpThread-" + clientEP.ToString();
             tcpReceiveThread.Start();
 
             dataSender = new Thread(new ThreadStart(DataRunner));
+            dataReset = new AutoResetEvent(false);
             dataSender.Start();
 
             initialized = true;
@@ -50,6 +58,8 @@ namespace WearFPSForms.Net {
 
         public void stop() {
             run = false;
+            dataReset.Set();
+            tcpReset.Set();
             client.Close();
             Clients.Remove(this);
         }
@@ -65,6 +75,11 @@ namespace WearFPSForms.Net {
                             lock (toLock) {
                                 lastHB = DateTime.Now;
                             }
+                            break;
+                        // Request de informacion del PC
+                        case 1:
+                            tcpQueue.Enqueue(0x01);
+                            tcpReset.Set();
                             break;
                         default:
                             Log.Warn("Unknown TCP packet type received: " + type);
@@ -82,23 +97,46 @@ namespace WearFPSForms.Net {
             }
         }
 
+        private void tcpSendRunner() {
+            var stream = client.GetStream();
+            while(run) {
+                tcpReset.WaitOne();
+                if (!run) continue;
+                if (tcpQueue.Count <= 0) continue;
+                byte type = tcpQueue.Dequeue();
+                switch (type) {
+                    //Enviar info del Pc
+                    case 0x01:
+                        ComputerInfo ci = new ComputerInfo {
+                            CpuName = HardwareMonitor.CPUName,
+                            GpuName = HardwareMonitor.GPUName
+                        };
+                        stream.WriteByte(0x01);
+                        ci.WriteDelimitedTo(stream);
+                        break;
+                    default:
+                        Log.Warn("tcpSendRunner: No se ha implementado el tipo de paquete " + type);
+                        break;
+                }
+            }
+        }
+
+        public void NotifyDataChanged() {
+            dataReset.Set();
+        }
+
         private void DataRunner() {
 
-            // Primero enviamos la información del PC
-            ComputerInfo ci = new ComputerInfo {
-                CpuName = HardwareMonitor.CPUName,
-                GpuName = HardwareMonitor.GPUName
-            };
-            UdpDataSender.Send(0x00, ci.ToByteArray(), clientEP);
-
             while (run) {
+                dataReset.WaitOne();
+                if (!run) return;
+
                 if ((DateTime.Now - lastHB).TotalSeconds > timeout) {
                     Log.Info("The client " + clientEP.ToString() + " has timed out");
                     this.stop();
                     continue;
                 }
-
-                HardwareMonitor.update();
+                //HardwareMonitor.update();
 
                 DataInt dataProto = new DataInt {
                     CpuFreq = (int)Math.Round(HardwareMonitor.CPUFreq),
@@ -114,18 +152,7 @@ namespace WearFPSForms.Net {
 
                 dataProto = null;
 
-
-
-                Thread.Sleep(freq);
-
-
-
             }
-        }
-
-        public int Frequency {
-            get { return freq; }
-            set { freq = value; }
         }
     }
 }

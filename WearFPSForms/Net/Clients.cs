@@ -11,16 +11,32 @@ namespace WearFPSForms.Net {
 
         public static void Add(TcpClient client) {
             clients.Add(new Client(client));
+            notifyHardwareThread();
         }
 
         public static void Remove(Client client) {
             clients.Remove(client);
+            notifyHardwareThread();
+        }
+
+        private static void notifyHardwareThread() {
+            if (clients.Count > 0) HardwareMonitor.ShouldUpdate(true);
+            else HardwareMonitor.ShouldUpdate(false);
         }
 
         public static void StopAll() {
             lock (clients) {
                 for (int i = clients.Count-1; i >= 0; i--) {
                     clients[i].stop();
+                }
+            }
+            notifyHardwareThread();
+        }
+
+        public static void NotifyDataChanged() {
+            lock (clients) {
+                foreach (var client in clients) {
+                    client.NotifyDataChanged();
                 }
             }
         }
