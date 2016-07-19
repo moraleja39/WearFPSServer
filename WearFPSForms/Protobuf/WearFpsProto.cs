@@ -26,13 +26,23 @@ namespace WearFPSForms {
             "ChR3ZWFyX2Zwc19wcm90by5wcm90byJ8CgdEYXRhSW50Eg8KB2NwdUxvYWQY",
             "ASABKAUSDwoHZ3B1TG9hZBgCIAEoBRILCgNmcHMYAyABKAUSDwoHY3B1VGVt",
             "cBgEIAEoBRIPCgdncHVUZW1wGAUgASgFEg8KB2NwdUZyZXEYBiABKAUSDwoH",
-            "Z3B1RnJlcRgHIAEoBSIwCgxDb21wdXRlckluZm8SDwoHY3B1TmFtZRgBIAEo",
-            "CRIPCgdncHVOYW1lGAIgASgJQiIKEW1lLm92aWVkby53ZWFyZnBzqgIMV2Vh",
-            "ckZQU0Zvcm1zYgZwcm90bzM="));
+            "Z3B1RnJlcRgHIAEoBSK1AQoIRGF0YUludDISDwoHY3B1TG9hZBgBIAEoBRIP",
+            "CgdncHVMb2FkGAIgASgFEgsKA2ZwcxgDIAEoBRIPCgdjcHVUZW1wGAQgASgF",
+            "Eg8KB2dwdVRlbXAYBSABKAUSDwoHY3B1RnJlcRgGIAEoBRIPCgdncHVGcmVx",
+            "GAcgASgFEg8KB3VzZWRNZW0YCCABKAUSFAoMYXZhaWxhYmxlTWVtGAkgASgF",
+            "Eg8KB2dhbWVNZW0YCiABKAUiogEKC0dhbWVTdGFydGVkEgwKBG5hbWUYASAB",
+            "KAkSCwoDZXhlGAIgASgJEh0KA2FwaRgDIAEoDjIQLkdhbWVTdGFydGVkLkFw",
+            "aSJZCgNBcGkSCwoHVU5LTk9XThAAEgYKAkREEAESCAoERDNEOBACEggKBEQz",
+            "RDkQAxIKCgZEM0Q5RVgQBBIHCgNPR0wQBRIJCgVEM0QxMBAGEgkKBUQzRDEx",
+            "EAciMAoMQ29tcHV0ZXJJbmZvEg8KB2NwdU5hbWUYASABKAkSDwoHZ3B1TmFt",
+            "ZRgCIAEoCUIiChFtZS5vdmllZG8ud2VhcmZwc6oCDFdlYXJGUFNGb3Jtc2IG",
+            "cHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::WearFPSForms.DataInt), global::WearFPSForms.DataInt.Parser, new[]{ "CpuLoad", "GpuLoad", "Fps", "CpuTemp", "GpuTemp", "CpuFreq", "GpuFreq" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::WearFPSForms.DataInt2), global::WearFPSForms.DataInt2.Parser, new[]{ "CpuLoad", "GpuLoad", "Fps", "CpuTemp", "GpuTemp", "CpuFreq", "GpuFreq", "UsedMem", "AvailableMem", "GameMem" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::WearFPSForms.GameStarted), global::WearFPSForms.GameStarted.Parser, new[]{ "Name", "Exe", "Api" }, null, new[]{ typeof(global::WearFPSForms.GameStarted.Types.Api) }, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::WearFPSForms.ComputerInfo), global::WearFPSForms.ComputerInfo.Parser, new[]{ "CpuName", "GpuName" }, null, null, null)
           }));
     }
@@ -306,12 +316,533 @@ namespace WearFPSForms {
   }
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+  public sealed partial class DataInt2 : pb::IMessage<DataInt2> {
+    private static readonly pb::MessageParser<DataInt2> _parser = new pb::MessageParser<DataInt2>(() => new DataInt2());
+    public static pb::MessageParser<DataInt2> Parser { get { return _parser; } }
+
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::WearFPSForms.WearFpsProtoReflection.Descriptor.MessageTypes[1]; }
+    }
+
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    public DataInt2() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    public DataInt2(DataInt2 other) : this() {
+      cpuLoad_ = other.cpuLoad_;
+      gpuLoad_ = other.gpuLoad_;
+      fps_ = other.fps_;
+      cpuTemp_ = other.cpuTemp_;
+      gpuTemp_ = other.gpuTemp_;
+      cpuFreq_ = other.cpuFreq_;
+      gpuFreq_ = other.gpuFreq_;
+      usedMem_ = other.usedMem_;
+      availableMem_ = other.availableMem_;
+      gameMem_ = other.gameMem_;
+    }
+
+    public DataInt2 Clone() {
+      return new DataInt2(this);
+    }
+
+    /// <summary>Field number for the "cpuLoad" field.</summary>
+    public const int CpuLoadFieldNumber = 1;
+    private int cpuLoad_;
+    public int CpuLoad {
+      get { return cpuLoad_; }
+      set {
+        cpuLoad_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "gpuLoad" field.</summary>
+    public const int GpuLoadFieldNumber = 2;
+    private int gpuLoad_;
+    public int GpuLoad {
+      get { return gpuLoad_; }
+      set {
+        gpuLoad_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "fps" field.</summary>
+    public const int FpsFieldNumber = 3;
+    private int fps_;
+    public int Fps {
+      get { return fps_; }
+      set {
+        fps_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "cpuTemp" field.</summary>
+    public const int CpuTempFieldNumber = 4;
+    private int cpuTemp_;
+    public int CpuTemp {
+      get { return cpuTemp_; }
+      set {
+        cpuTemp_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "gpuTemp" field.</summary>
+    public const int GpuTempFieldNumber = 5;
+    private int gpuTemp_;
+    public int GpuTemp {
+      get { return gpuTemp_; }
+      set {
+        gpuTemp_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "cpuFreq" field.</summary>
+    public const int CpuFreqFieldNumber = 6;
+    private int cpuFreq_;
+    public int CpuFreq {
+      get { return cpuFreq_; }
+      set {
+        cpuFreq_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "gpuFreq" field.</summary>
+    public const int GpuFreqFieldNumber = 7;
+    private int gpuFreq_;
+    public int GpuFreq {
+      get { return gpuFreq_; }
+      set {
+        gpuFreq_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "usedMem" field.</summary>
+    public const int UsedMemFieldNumber = 8;
+    private int usedMem_;
+    public int UsedMem {
+      get { return usedMem_; }
+      set {
+        usedMem_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "availableMem" field.</summary>
+    public const int AvailableMemFieldNumber = 9;
+    private int availableMem_;
+    public int AvailableMem {
+      get { return availableMem_; }
+      set {
+        availableMem_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "gameMem" field.</summary>
+    public const int GameMemFieldNumber = 10;
+    private int gameMem_;
+    public int GameMem {
+      get { return gameMem_; }
+      set {
+        gameMem_ = value;
+      }
+    }
+
+    public override bool Equals(object other) {
+      return Equals(other as DataInt2);
+    }
+
+    public bool Equals(DataInt2 other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (CpuLoad != other.CpuLoad) return false;
+      if (GpuLoad != other.GpuLoad) return false;
+      if (Fps != other.Fps) return false;
+      if (CpuTemp != other.CpuTemp) return false;
+      if (GpuTemp != other.GpuTemp) return false;
+      if (CpuFreq != other.CpuFreq) return false;
+      if (GpuFreq != other.GpuFreq) return false;
+      if (UsedMem != other.UsedMem) return false;
+      if (AvailableMem != other.AvailableMem) return false;
+      if (GameMem != other.GameMem) return false;
+      return true;
+    }
+
+    public override int GetHashCode() {
+      int hash = 1;
+      if (CpuLoad != 0) hash ^= CpuLoad.GetHashCode();
+      if (GpuLoad != 0) hash ^= GpuLoad.GetHashCode();
+      if (Fps != 0) hash ^= Fps.GetHashCode();
+      if (CpuTemp != 0) hash ^= CpuTemp.GetHashCode();
+      if (GpuTemp != 0) hash ^= GpuTemp.GetHashCode();
+      if (CpuFreq != 0) hash ^= CpuFreq.GetHashCode();
+      if (GpuFreq != 0) hash ^= GpuFreq.GetHashCode();
+      if (UsedMem != 0) hash ^= UsedMem.GetHashCode();
+      if (AvailableMem != 0) hash ^= AvailableMem.GetHashCode();
+      if (GameMem != 0) hash ^= GameMem.GetHashCode();
+      return hash;
+    }
+
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (CpuLoad != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(CpuLoad);
+      }
+      if (GpuLoad != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(GpuLoad);
+      }
+      if (Fps != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(Fps);
+      }
+      if (CpuTemp != 0) {
+        output.WriteRawTag(32);
+        output.WriteInt32(CpuTemp);
+      }
+      if (GpuTemp != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(GpuTemp);
+      }
+      if (CpuFreq != 0) {
+        output.WriteRawTag(48);
+        output.WriteInt32(CpuFreq);
+      }
+      if (GpuFreq != 0) {
+        output.WriteRawTag(56);
+        output.WriteInt32(GpuFreq);
+      }
+      if (UsedMem != 0) {
+        output.WriteRawTag(64);
+        output.WriteInt32(UsedMem);
+      }
+      if (AvailableMem != 0) {
+        output.WriteRawTag(72);
+        output.WriteInt32(AvailableMem);
+      }
+      if (GameMem != 0) {
+        output.WriteRawTag(80);
+        output.WriteInt32(GameMem);
+      }
+    }
+
+    public int CalculateSize() {
+      int size = 0;
+      if (CpuLoad != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(CpuLoad);
+      }
+      if (GpuLoad != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(GpuLoad);
+      }
+      if (Fps != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Fps);
+      }
+      if (CpuTemp != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(CpuTemp);
+      }
+      if (GpuTemp != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(GpuTemp);
+      }
+      if (CpuFreq != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(CpuFreq);
+      }
+      if (GpuFreq != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(GpuFreq);
+      }
+      if (UsedMem != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(UsedMem);
+      }
+      if (AvailableMem != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(AvailableMem);
+      }
+      if (GameMem != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(GameMem);
+      }
+      return size;
+    }
+
+    public void MergeFrom(DataInt2 other) {
+      if (other == null) {
+        return;
+      }
+      if (other.CpuLoad != 0) {
+        CpuLoad = other.CpuLoad;
+      }
+      if (other.GpuLoad != 0) {
+        GpuLoad = other.GpuLoad;
+      }
+      if (other.Fps != 0) {
+        Fps = other.Fps;
+      }
+      if (other.CpuTemp != 0) {
+        CpuTemp = other.CpuTemp;
+      }
+      if (other.GpuTemp != 0) {
+        GpuTemp = other.GpuTemp;
+      }
+      if (other.CpuFreq != 0) {
+        CpuFreq = other.CpuFreq;
+      }
+      if (other.GpuFreq != 0) {
+        GpuFreq = other.GpuFreq;
+      }
+      if (other.UsedMem != 0) {
+        UsedMem = other.UsedMem;
+      }
+      if (other.AvailableMem != 0) {
+        AvailableMem = other.AvailableMem;
+      }
+      if (other.GameMem != 0) {
+        GameMem = other.GameMem;
+      }
+    }
+
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            input.SkipLastField();
+            break;
+          case 8: {
+            CpuLoad = input.ReadInt32();
+            break;
+          }
+          case 16: {
+            GpuLoad = input.ReadInt32();
+            break;
+          }
+          case 24: {
+            Fps = input.ReadInt32();
+            break;
+          }
+          case 32: {
+            CpuTemp = input.ReadInt32();
+            break;
+          }
+          case 40: {
+            GpuTemp = input.ReadInt32();
+            break;
+          }
+          case 48: {
+            CpuFreq = input.ReadInt32();
+            break;
+          }
+          case 56: {
+            GpuFreq = input.ReadInt32();
+            break;
+          }
+          case 64: {
+            UsedMem = input.ReadInt32();
+            break;
+          }
+          case 72: {
+            AvailableMem = input.ReadInt32();
+            break;
+          }
+          case 80: {
+            GameMem = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+  public sealed partial class GameStarted : pb::IMessage<GameStarted> {
+    private static readonly pb::MessageParser<GameStarted> _parser = new pb::MessageParser<GameStarted>(() => new GameStarted());
+    public static pb::MessageParser<GameStarted> Parser { get { return _parser; } }
+
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::WearFPSForms.WearFpsProtoReflection.Descriptor.MessageTypes[2]; }
+    }
+
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    public GameStarted() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    public GameStarted(GameStarted other) : this() {
+      name_ = other.name_;
+      exe_ = other.exe_;
+      api_ = other.api_;
+    }
+
+    public GameStarted Clone() {
+      return new GameStarted(this);
+    }
+
+    /// <summary>Field number for the "name" field.</summary>
+    public const int NameFieldNumber = 1;
+    private string name_ = "";
+    public string Name {
+      get { return name_; }
+      set {
+        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "exe" field.</summary>
+    public const int ExeFieldNumber = 2;
+    private string exe_ = "";
+    public string Exe {
+      get { return exe_; }
+      set {
+        exe_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "api" field.</summary>
+    public const int ApiFieldNumber = 3;
+    private global::WearFPSForms.GameStarted.Types.Api api_ = 0;
+    public global::WearFPSForms.GameStarted.Types.Api Api {
+      get { return api_; }
+      set {
+        api_ = value;
+      }
+    }
+
+    public override bool Equals(object other) {
+      return Equals(other as GameStarted);
+    }
+
+    public bool Equals(GameStarted other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Name != other.Name) return false;
+      if (Exe != other.Exe) return false;
+      if (Api != other.Api) return false;
+      return true;
+    }
+
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (Exe.Length != 0) hash ^= Exe.GetHashCode();
+      if (Api != 0) hash ^= Api.GetHashCode();
+      return hash;
+    }
+
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (Name.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Name);
+      }
+      if (Exe.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Exe);
+      }
+      if (Api != 0) {
+        output.WriteRawTag(24);
+        output.WriteEnum((int) Api);
+      }
+    }
+
+    public int CalculateSize() {
+      int size = 0;
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      }
+      if (Exe.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Exe);
+      }
+      if (Api != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Api);
+      }
+      return size;
+    }
+
+    public void MergeFrom(GameStarted other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Name.Length != 0) {
+        Name = other.Name;
+      }
+      if (other.Exe.Length != 0) {
+        Exe = other.Exe;
+      }
+      if (other.Api != 0) {
+        Api = other.Api;
+      }
+    }
+
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            input.SkipLastField();
+            break;
+          case 10: {
+            Name = input.ReadString();
+            break;
+          }
+          case 18: {
+            Exe = input.ReadString();
+            break;
+          }
+          case 24: {
+            api_ = (global::WearFPSForms.GameStarted.Types.Api) input.ReadEnum();
+            break;
+          }
+        }
+      }
+    }
+
+    #region Nested types
+    /// <summary>Container for nested types declared in the GameStarted message type.</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    public static partial class Types {
+      public enum Api {
+        [pbr::OriginalName("UNKNOWN")] Unknown = 0,
+        [pbr::OriginalName("DD")] Dd = 1,
+        [pbr::OriginalName("D3D8")] D3D8 = 2,
+        [pbr::OriginalName("D3D9")] D3D9 = 3,
+        [pbr::OriginalName("D3D9EX")] D3D9Ex = 4,
+        [pbr::OriginalName("OGL")] Ogl = 5,
+        [pbr::OriginalName("D3D10")] D3D10 = 6,
+        [pbr::OriginalName("D3D11")] D3D11 = 7,
+      }
+
+    }
+    #endregion
+
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public sealed partial class ComputerInfo : pb::IMessage<ComputerInfo> {
     private static readonly pb::MessageParser<ComputerInfo> _parser = new pb::MessageParser<ComputerInfo>(() => new ComputerInfo());
     public static pb::MessageParser<ComputerInfo> Parser { get { return _parser; } }
 
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::WearFPSForms.WearFpsProtoReflection.Descriptor.MessageTypes[1]; }
+      get { return global::WearFPSForms.WearFpsProtoReflection.Descriptor.MessageTypes[3]; }
     }
 
     pbr::MessageDescriptor pb::IMessage.Descriptor {

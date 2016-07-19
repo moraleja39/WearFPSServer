@@ -28,6 +28,7 @@ namespace WearFPSForms
         //static volatile RTSS_App[] app;
         //static volatile int appSize;
         static volatile int curApp = -1;
+        static volatile Process curProcess;
 
         //static volatile bool runThread;
         //static Thread updateThread;
@@ -131,10 +132,27 @@ namespace WearFPSForms
                     if (tmp == pid) curApp = i;
                     else if (tmp == 0) break;
                 }
-                //if (curApp == -1) Log.Debug("Forefround app not DX/OGL app.");
-                if (curApp == -1) { } else Log.Debug("Foreground app monitored by RTSS, #" + curApp);
+                
+                if (curApp != -1) {
+                    AppFlags flags = (AppFlags)NativeMethods.getAppFlags(curApp);
+                    if ((flags & AppFlags.APPFLAG_API_USAGE_MASK) > 0) {
+                        curProcess = Process.GetProcessById((int)pid);
+                        Log.Debug("La aplicación " + curProcess.MainWindowTitle + " (" + curProcess.ProcessName + ") usa la API de gráficos " + flags.ToString());
+                        Net.Clients.NotifyGameLaunched(curProcess.MainWindowTitle, curProcess.ProcessName + ".exe", flags);
+                    } else {
+                        Log.Debug("App not using graphical api");
+                        curApp = -1;
+                    }
+                } else {
+                    Net.Clients.NotifyGameClosed();
+                }
                 threadSyncer.Reset();
             }
+        }
+
+        public static long GetCurAppRamUsage() {
+            if (curApp < 0) return 0;
+            else return curProcess.WorkingSet64;
         }
 
         static uint pid, tmp;

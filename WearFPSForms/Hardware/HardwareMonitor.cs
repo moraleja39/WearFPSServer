@@ -74,8 +74,31 @@ namespace WearFPSForms {
             }
         }
 
+        private class cMem {
+            public IHardware hardware = null;
+            public ISensor used = null;
+            public ISensor available = null;
+
+            public void findSensors() {
+                this.hardware.Update();
+                used = null; available = null;
+                foreach (var sensor in this.hardware.Sensors) {
+                    if (sensor.SensorType == SensorType.Data) {
+                        if (sensor.Name.Equals("Used Memory", StringComparison.InvariantCultureIgnoreCase)) this.used = sensor;
+                        if (sensor.Name.Equals("Available Memory", StringComparison.InvariantCultureIgnoreCase)) this.available = sensor;
+                    }
+                }
+            }
+
+            public void update() {
+                this.hardware.Update();
+            }
+
+        }
+
         static cCPU cpu = new cCPU();
         static cGPU gpu = new cGPU();
+        static cMem mem = new cMem();
 
         static Computer computer = null;
 
@@ -150,8 +173,8 @@ namespace WearFPSForms {
                 computer = new Computer() {
                     CPUEnabled = true,
                     GPUEnabled = true,
-                    //RAMEnabled = true,
-                    MainboardEnabled = true/*,
+                    RAMEnabled = true,
+                    /*MainboardEnabled = true,
                 FanControllerEnabled = true,
                 HDDEnabled = true*/
                 };
@@ -175,6 +198,10 @@ namespace WearFPSForms {
                     if (item.HardwareType == HardwareType.GpuAti || item.HardwareType == HardwareType.GpuNvidia) {
                         gpu.hardware = item;
                         gpu.findSensors();
+                    }
+                    if (item.HardwareType == HardwareType.RAM) {
+                        mem.hardware = item;
+                        mem.findSensors();
                     }
                 }
 
@@ -233,6 +260,7 @@ namespace WearFPSForms {
             lock (updateLocker) {
                 cpu.update();
                 gpu.update();
+                mem.update();
             }
         }
 
@@ -280,6 +308,17 @@ namespace WearFPSForms {
         public static float GPUFreq {
             get {
                 return (gpu.isOnline()) ? gpu.clock.Value.Value : -1f;
+            }
+        }
+
+        public static float UsedMem {
+            get {
+                return (mem.hardware != null && mem.used != null && mem.used.Value.HasValue) ? mem.used.Value.Value * 1024 : -1f;
+            }
+        }
+        public static float AvailableMem {
+            get {
+                return (mem.hardware != null && mem.available != null && mem.available.Value.HasValue) ? mem.available.Value.Value * 1024 : -1f;
             }
         }
     }

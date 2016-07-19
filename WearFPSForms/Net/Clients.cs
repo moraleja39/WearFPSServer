@@ -33,6 +33,18 @@ namespace WearFPSForms.Net {
             notifyHardwareThread();
         }
 
+        public static void NotifyGameLaunched(string title, string exe, AppFlags apiflag) {
+            lock (clients) {
+                foreach (var c in clients) c.NotifyGameLaunched(title, exe, apiflag);
+            }
+        }
+
+        public static void NotifyGameClosed() {
+            lock (clients) {
+                foreach (var c in clients) c.NotifyGameClosed();
+            }
+        }
+
         public static void NotifyDataChanged() {
             lock (clients) {
                 foreach (var client in clients) {

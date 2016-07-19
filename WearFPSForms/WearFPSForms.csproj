@@ -130,6 +130,7 @@
     <Compile Include="Exceptions.cs" />
     <Compile Include="Helpers\FirewallHelper.cs" />
     <Compile Include="Hardware\HardwareMonitor.cs" />
+    <Compile Include="Helpers\GameIcon.cs" />
     <Compile Include="Helpers\INIHelper.cs" />
     <Compile Include="Helpers\Log.cs" />
     <Compile Include="MyWebClient.cs">
@@ -147,6 +148,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protobuf\WearFpsProto.cs" />
     <Compile Include="RTSS.cs" />
+    <Compile Include="RTSSAppFlags.cs" />
     <Compile Include="RTSS_Structs.cs" />
     <EmbeddedResource Include="CustomConsole.resx">
       <DependentUpon>CustomConsole.cs</DependentUpon>

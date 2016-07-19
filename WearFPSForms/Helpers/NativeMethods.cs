@@ -47,6 +47,9 @@ namespace WearFPSForms
         [DllImport("rtssbridge.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void printTest();
 
+        [DllImport("rtssbridge.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern uint getAppFlags(int i);
+
         [DllImport("psapi.dll")]
         public static extern int EmptyWorkingSet(IntPtr hwProc);
 

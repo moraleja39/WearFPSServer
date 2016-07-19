@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static WearFPSForms.GameStarted.Types;
 
 namespace WearFPSForms.Net {
     class Client {
@@ -18,7 +19,15 @@ namespace WearFPSForms.Net {
         private Thread dataSender;
         private AutoResetEvent dataReset;
 
-        private Queue<byte> tcpQueue;
+        private struct Message {
+            public byte type;
+            public IMessage msg;
+            public Message (byte t, IMessage m) {
+                this.type = t;
+                this.msg = m;
+            }
+        }
+        private Queue<Message> tcpQueue;
         private AutoResetEvent tcpReset;
 
         private bool initialized = false;
@@ -43,7 +52,7 @@ namespace WearFPSForms.Net {
             lastHB = DateTime.Now;
 
             tcpReset = new AutoResetEvent(false);
-            tcpQueue = new Queue<byte>();
+            tcpQueue = new Queue<Message>();
 
             tcpReceiveThread = new Thread(new ThreadStart(tcpReceiveRunner));
             tcpReceiveThread.Name = "ClientTcpThread-" + clientEP.ToString();
@@ -78,7 +87,11 @@ namespace WearFPSForms.Net {
                             break;
                         // Request de informacion del PC
                         case 1:
-                            tcpQueue.Enqueue(0x01);
+                            ComputerInfo ci = new ComputerInfo {
+                                CpuName = HardwareMonitor.CPUName,
+                                GpuName = HardwareMonitor.GPUName
+                            };
+                            tcpQueue.Enqueue(new Message(0x01, ci));
                             tcpReset.Set();
                             break;
                         default:
@@ -97,27 +110,58 @@ namespace WearFPSForms.Net {
             }
         }
 
+        public void NotifyGameLaunched(string title, string exe, AppFlags apiflag) {
+
+            Api api;
+            #region UglyApiSwitch
+            switch (apiflag) {
+                case AppFlags.APPFLAG_DD:
+                    api = Api.Dd;
+                    break;
+                case AppFlags.APPFLAG_D3D9:
+                    api = Api.D3D9;
+                    break;
+                case AppFlags.APPFLAG_D3D9EX:
+                    api = Api.D3D9Ex;
+                    break;
+                case AppFlags.APPFLAG_OGL:
+                    api = Api.Ogl;
+                    break;
+                case AppFlags.APPFLAG_D3D10:
+                    api = Api.D3D10;
+                    break;
+                case AppFlags.APPFLAG_D3D11:
+                    api = Api.D3D11;
+                    break;
+                default:
+                    api = Api.Unknown;
+                    break;
+            }
+            #endregion
+
+            GameStarted gs = new GameStarted {
+                Api = api,
+                Exe = exe,
+                Name = title
+            };
+            tcpQueue.Enqueue(new Message(0x02, gs));
+            tcpReset.Set();
+        }
+
+        public void NotifyGameClosed() {
+            tcpQueue.Enqueue(new Message(0x03, null));
+            tcpReset.Set();
+        }
+
         private void tcpSendRunner() {
             var stream = client.GetStream();
             while(run) {
                 tcpReset.WaitOne();
                 if (!run) continue;
                 if (tcpQueue.Count <= 0) continue;
-                byte type = tcpQueue.Dequeue();
-                switch (type) {
-                    //Enviar info del Pc
-                    case 0x01:
-                        ComputerInfo ci = new ComputerInfo {
-                            CpuName = HardwareMonitor.CPUName,
-                            GpuName = HardwareMonitor.GPUName
-                        };
-                        stream.WriteByte(0x01);
-                        ci.WriteDelimitedTo(stream);
-                        break;
-                    default:
-                        Log.Warn("tcpSendRunner: No se ha implementado el tipo de paquete " + type);
-                        break;
-                }
+                Message message = tcpQueue.Dequeue();
+                stream.WriteByte(message.type);
+                if (message.msg != null) message.msg.WriteDelimitedTo(stream);
             }
         }
 
@@ -138,14 +182,17 @@ namespace WearFPSForms.Net {
                 }
                 //HardwareMonitor.update();
 
-                DataInt dataProto = new DataInt {
+                DataInt2 dataProto = new DataInt2 {
                     CpuFreq = (int)Math.Round(HardwareMonitor.CPUFreq),
                     CpuLoad = (int)Math.Round(HardwareMonitor.CPULoad),
                     CpuTemp = (int)Math.Round(HardwareMonitor.CPUTemp),
                     Fps = (int)Math.Round(RTSS.getFPS()),
                     GpuFreq = (int)Math.Round(HardwareMonitor.GPUFreq),
                     GpuLoad = (int)Math.Round(HardwareMonitor.GPULoad),
-                    GpuTemp = (int)Math.Round(HardwareMonitor.GPUTemp)
+                    GpuTemp = (int)Math.Round(HardwareMonitor.GPUTemp),
+                    AvailableMem = (int)HardwareMonitor.AvailableMem,
+                    UsedMem = (int)HardwareMonitor.UsedMem,
+                    GameMem = (int)RTSS.GetCurAppRamUsage()
                 };
 
                 UdpDataSender.Send(0x01, dataProto.ToByteArray(), clientEP);
